@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ЕГЭ Русский - Тренажёр</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #fff; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
+.container { background: #16213e; padding: 30px; border-radius: 20px; width: 90%; max-width: 600px; box-shadow: 0 0 40px rgba(0,0,0,0.5); text-align: center; }
+h1 { font-size: 24px; margin-bottom: 20px; color: #e94560; }
+.btn { display: block; width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; transition: 0.3s; background: #0f3460; color: #fff; }
+.btn:hover { transform: scale(1.02); filter: brightness(1.2); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
+.btn-answer { background: #1a1a40; text-align: left; padding: 12px 16px; }
+.btn-answer:hover { background: #16213e; }
+.btn-answer.correct { background: #27ae60; }
+.btn-answer.wrong { background: #e74c3c; }
+.btn-level { background: #0f3460; margin: 10px 0; }
+.btn-level.active { background: #e94560; box-shadow: 0 0 20px rgba(233,69,96,0.4); }
+.start-btn { background: #e94560; font-size: 20px; font-weight: bold; margin-top: 20px; }
+.back-btn { background: transparent; border: 1px solid #555; color: #aaa; margin-top: 10px; }
+.score-box { padding: 20px; }
+.score-box h2 { font-size: 48px; color: #e94560; }
+.progress { height: 6px; background: #0f3460; border-radius: 3px; margin: 15px 0; overflow: hidden; }
+.progress-bar { height: 100%; background: #e94560; transition: width 0.3s; border-radius: 3px; }
+.question-num { color: #aaa; margin-bottom: 15px; }
+.question-text { font-size: 18px; margin-bottom: 20px; line-height: 1.5; }
+.hidden { display: none; }
+.info-page { text-align: left; }
+.info-page h2 { color: #e94560; margin: 15px 0 10px; text-align: center; }
+.info-page p { margin: 6px 0; padding: 5px 10px; background: #0f3460; border-radius: 6px; }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+  <div id="menu">
+    <h1>📚 ЕГЭ Русский язык</h1>
+    <p style="color:#aaa;margin-bottom:20px;">Тренажёр с 3 уровнями сложности</p>
+    <button class="btn btn-level" data-level="easy" onclick="setLevel('easy')">🟢 Лёгкий (10 вопросов)</button>
+    <button class="btn btn-level" data-level="medium" onclick="setLevel('medium')">🟡 Средний (20 вопросов)</button>
+    <button class="btn btn-level" data-level="hard" onclick="setLevel('hard')">🔴 Сложный (30 вопросов)</button>
+    <p style="margin:10px 0;color:#e94560;" id="levelDisplay">Выбран: Лёгкий</p>
+    <button class="btn start-btn" onclick="startTest()">Начать тест</button>
+    <button class="btn back-btn" onclick="showInfo()">📖 Справочник</button>
+  </div>
+
+  <div id="info" class="hidden">
+    <h1>📖 Справочник</h1>
+    <div class="info-page">
+      <h2>Ударения</h2>
+      <p>звон<strong>И</strong>т — догов<strong>О</strong>р — красив<strong>Е</strong>е</p>
+      <p><strong>ТО</strong>рты — <strong>ША</strong>рфы — щав<strong>Е</strong>ль</p>
+      <p><strong>ЧЕ</strong>рпать — эксп<strong>Е</strong>рт — балов<strong>А</strong>ть</p>
+      <p>включ<strong>И</strong>т — <strong>ЖД</strong>ало — <strong>КЛ</strong>еить</p>
+      <h2>Паронимы</h2>
+      <p><strong>Абонент</strong> — тот, кто пользуется абонементом</p>
+      <p><strong>Абонемент</strong> — право пользования</p>
+      <p><strong>Дипломат</strong> — работник дипломатии</p>
+      <p><strong>Дипломант</strong> — участник конкурса</p>
+      <p><strong>Невежа</strong> — грубый человек</p>
+      <p><strong>Невежда</strong> — малообразованный</p>
+      <p><strong>Исполнительный</strong> — старательный</p>
+      <p><strong>Исполнительский</strong> — относящийся к исполнению</p>
+      <p><strong>Командированный</strong> — человек в командировке</p>
+      <p><strong>Командировочный</strong> — документ на поездку</p>
+    </div>
+    <button class="btn back-btn" onclick="showMenu()">← Назад</button>
+  </div>
+
+  <div id="quiz" class="hidden">
+    <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="question-num" id="questionNum"></div>
+    <div class="question-text" id="questionText"></div>
+    <div id="answers"></div>
+    <div id="feedback" style="margin-top:15px;font-size:18px;"></div>
+    <button class="btn back-btn hidden" id="nextBtn" onclick="nextQuestion()">→ Далее</button>
+  </div>
+
+  <div id="result" class="hidden">
+    <div class="score-box">
+      <h1>🏆 Результат</h1>
+      <h2 id="scorePercent">0%</h2>
+      <p id="scoreText" style="margin:10px 0;"></p>
+      <p id="scoreDetail"></p>
+      <button class="btn start-btn" onclick="showMenu()">← В меню</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  { q: 'В каком слове ударение падает на первый слог?', a: 'тОрты', variants: ['звонИт', 'тОрты', 'красивЕе', 'договОр'] },
+  { q: 'Какой пароним означает "грубый, невоспитанный человек"?', a: 'Невежа', variants: ['Невежда', 'Невежа'] },
+  { q: 'В каком слове верно выделена ударная гласная?', a: 'тОрты', variants: ['звОнит', 'красивЕе', 'тОрты', 'договОр'] },
+  { q: 'Вставь пропущенную букву: аб...немент', a: 'О', variants: ['О', 'А'] },
+  { q: '"Дипломат" — это:', a: 'Работник дипломатии', variants: ['Работник дипломатии', 'Участник конкурса', 'Документ', 'Грубый человек'] },
+  { q: 'В каком слове ударение на последний слог?', a: 'щавЕль', variants: ['шАрфы', 'щавЕль', 'тОрты', 'чЕрпать'] },
+  { q: '"Исполнительный" — это:', a: 'Старательный, ответственный', variants: ['Относящийся к исполнению', 'Старательный, ответственный'] },
+  { q: 'Вставь букву: б...ловать', a: 'А', variants: ['А', 'О'] },
+  { q: '"Командированный" — это:', a: 'Человек в командировке', variants: ['Человек в командировке', 'Документ на поездку'] },
+  { q: 'В каком слове ударение на второй слог?', a: 'звонИт', variants: ['красивЕе', 'тОрты', 'звонИт', 'чЕрпать'] },
+  { q: 'Найди ошибку в ударении:', a: 'клЕить', variants: ['звонИт', 'договОр', 'клЕить', 'щавЕль'] },
+  { q: '"Абонент" — это:', a: 'Тот, кто пользуется абонементом', variants: ['Тот, кто пользуется абонементом', 'Право пользования'] },
+  { q: 'В каком слове ударение на третий слог?', a: 'красивЕе', variants: ['тОрты', 'звонИт', 'щавЕль', 'красивЕе'] },
+  { q: 'Вставь букву: эксп...рт', a: 'Е', variants: ['Е', 'И'] },
+  { q: '"Невежда" — это:', a: 'Малообразованный человек', variants: ['Грубый человек', 'Малообразованный человек'] },
+  { q: 'В каком слове буква "ё" под ударением?', a: 'свЁкла', variants: ['свЁкла', 'свЕкла'] },
+  { q: 'Вставь окончание: диплом...нт конкурса', a: 'А', variants: ['А', 'О'] },
+  { q: 'Где правильно поставлено ударение?', a: 'балУясь', variants: ['бАлуясь', 'балУясь'] },
+  { q: '"Командировочный" — это:', a: 'Документ на поездку', variants: ['Человек в командировке', 'Документ на поездку'] },
+  { q: 'В каком слове 2 слога?', a: 'шарфы', variants: ['шарфы', 'щавель', 'красивее', 'договор'] },
+  { q: 'Найди верный вариант:', a: 'жалюзИ', variants: ['жАлюзи', 'жалюзИ'] },
+  { q: 'Вставь букву: инж...нер', a: 'Е', variants: ['Е', 'И'] },
+  { q: 'Где ударение на первый слог?', a: 'кУхонный', variants: ['кУхонный', 'кухОнный'] },
+  { q: '"Исполнительский" — это:', a: 'Относящийся к исполнению', variants: ['Старательный', 'Относящийся к исполнению'] },
+  { q: 'В каком слове ударение падает на "И"?', a: 'звонИт', variants: ['красИвее', 'звонИт', 'договОр', 'щавЕль'] },
+  { q: 'Вставь букву: прив...легия', a: 'И', variants: ['Е', 'И'] },
+  { q: 'Где все слова с правильным ударением?', a: 'тОрты, щавЕль', variants: ['тОрты, щавЕль', 'тОрты, щАвель', 'тортЫ, щавЕль', 'тортЫ, щАвель'] },
+  { q: '"Абонемент" — это:', a: 'Право пользования', variants: ['Право пользования', 'Тот, кто пользуется'] },
+  { q: 'Найди ошибку:', a: 'катАлог', variants: ['катАлог', 'диалОг', 'монолОг'] },
+  { q: 'В каком слове ударение на второй слог?', a: 'красИвее', variants: ['крАсивее', 'красИвее'] },
+  { q: 'Вставь окончание: в течени... дня', a: 'И', variants: ['Е', 'И'] },
+  { q: '"Одеть" или "надеть"? Одеть можно:', a: 'кого-то', variants: ['кого-то', 'что-то', 'на себя'] },
+  { q: 'В каком слове 3 слога?', a: 'договор', variants: ['шарф', 'договор', 'щавель', 'звонит'] },
+  { q: 'Где нет ошибки?', a: 'их', variants: ['их', 'ихний', 'евоный'] },
+  { q: 'Вставь букву: об...яние', a: 'А', variants: ['А', 'О'] },
+];
+
+let currentLevel = 'easy';
+let totalQuestions = 10;
+let currentQuestions = [];
+let currentIndex = 0;
+let correct = 0;
+let answered = false;
+
+function setLevel(level) {
+  currentLevel = level;
+  const map = { easy: 10, medium: 20, hard: 30 };
+  totalQuestions = map[level];
+  document.querySelectorAll('.btn-level').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-level="${level}"]`).classList.add('active');
+  const names = { easy: 'Лёгкий', medium: 'Средний', hard: 'Сложный' };
+  document.getElementById('levelDisplay').textContent = 'Выбран: ' + names[level];
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startTest() {
+  currentQuestions = shuffle([...questions]).slice(0, totalQuestions);
+  currentIndex = 0;
+  correct = 0;
+  document.getElementById('menu').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  document.getElementById('result').classList.add('hidden');
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = currentQuestions[currentIndex];
+  document.getElementById('questionNum').textContent = `Вопрос ${currentIndex + 1} из ${totalQuestions}`;
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('nextBtn').classList.add('hidden');
+  answered = false;
+
+  const bar = ((currentIndex) / totalQuestions) * 100;
+  document.getElementById('progressBar').style.width = bar + '%';
+
+  const container = document.getElementById('answers');
+  container.innerHTML = '';
+  const variants = shuffle([...q.variants]);
+  variants.forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'btn btn-answer';
+    btn.textContent = v;
+    btn.onclick = () => checkAnswer(btn, v, q.a);
+    container.appendChild(btn);
+  });
+}
+
+function checkAnswer(btn, selected, correctAnswer) {
+  if (answered) return;
+  answered = true;
+  const buttons = document.querySelectorAll('.btn-answer');
+  buttons.forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correctAnswer) b.classList.add('correct');
+  });
+  if (selected === correctAnswer) {
+    btn.classList.add('correct');
+    correct++;
+    document.getElementById('feedback').textContent = '✅ Правильно!';
+    document.getElementById('feedback').style.color = '#27ae60';
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('feedback').textContent = '❌ Неправильно! Правильный: ' + correctAnswer;
+    document.getElementById('feedback').style.color = '#e74c3c';
+  }
+  if (currentIndex < totalQuestions - 1) {
+    document.getElementById('nextBtn').classList.remove('hidden');
+    document.getElementById('nextBtn').textContent = '→ Далее';
+  } else {
+    document.getElementById('nextBtn').classList.remove('hidden');
+    document.getElementById('nextBtn').textContent = '🏁 Результат';
+  }
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= totalQuestions) {
+    showResult();
+  } else {
+    showQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  const pct = Math.round((correct / totalQuestions) * 100);
+  document.getElementById('scorePercent').textContent = pct + '%';
+  document.getElementById('scoreDetail').textContent = `${correct} из ${totalQuestions} правильных`;
+  let txt = '';
+  if (pct >= 90) txt = '🏅 Отлично! Ты готов к ЕГЭ!';
+  else if (pct >= 70) txt = '👍 Хорошо! Нужно немного подтянуть.';
+  else txt = '📚 Нужно больше тренироваться!';
+  document.getElementById('scoreText').textContent = txt;
+  document.getElementById('progressBar').style.width = '100%';
+}
+
+function showInfo() {
+  document.getElementById('menu').classList.add('hidden');
+  document.getElementById('info').classList.remove('hidden');
+}
+
+function showMenu() {
+  document.getElementById('menu').classList.remove('hidden');
+  document.getElementById('info').classList.add('hidden');
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('progressBar').style.width = '0%';
+}
+</script>
+</body>
+</html>
