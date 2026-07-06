@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЕГЭ Русский язык — тренажёр</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card" id="app">
+      <h1>📝 ЕГЭ. Русский язык</h1>
+      <p class="subtitle">Выберите уровень сложности и начните тренировку</p>
+
+      <!-- Level Selection -->
+      <div id="levelSelection" class="level-selection">
+        <div class="level-grid">
+          <button class="level-btn" data-level="1">
+            <div class="level-num">1</div>
+            <div class="level-title">Базовый</div>
+            <div class="level-desc">Орфоэпия и ударения</div>
+          </button>
+          <button class="level-btn" data-level="2">
+            <div class="level-num">2</div>
+            <div class="level-title">Начальный</div>
+            <div class="level-desc">Паронимы и лексика</div>
+          </button>
+          <button class="level-btn" data-level="3">
+            <div class="level-num">3</div>
+            <div class="level-title">Средний</div>
+            <div class="level-desc">Грамматика и синтаксис</div>
+          </button>
+          <button class="level-btn" data-level="4">
+            <div class="level-num">4</div>
+            <div class="level-title">Продвинутый</div>
+            <div class="level-desc">Орфография и пунктуация</div>
+          </button>
+          <button class="level-btn" data-level="5">
+            <div class="level-num">5</div>
+            <div class="level-title">Эксперт</div>
+            <div class="level-desc">Полный тест ЕГЭ</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Question Area -->
+      <div id="questionArea" class="question-area">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="question-header">
+          <span id="questionCounter">Вопрос 1 из 5</span>
+          <span id="levelTag" class="level-tag l1">Уровень 1</span>
+        </div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="nav-buttons">
+          <button class="btn btn-secondary" id="prevBtn" disabled>← Назад</button>
+          <button class="btn btn-primary" id="nextBtn">Далее →</button>
+          <button class="btn btn-success" id="finishBtn" style="display:none">Завершить</button>
+        </div>
+      </div>
+
+      <!-- Result Screen -->
+      <div id="resultScreen" class="result-screen">
+        <div class="result-icon" id="resultIcon">🎉</div>
+        <div class="result-title" id="resultTitle">Отличный результат!</div>
+        <div class="result-score" id="resultScore">5/5</div>
+        <div class="result-detail" id="resultDetail">Вы набрали 100%</div>
+        <div class="result-stats">
+          <div class="stat">
+            <div class="stat-value" id="statCorrect">0</div>
+            <div class="stat-label">Правильно</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="statWrong">0</div>
+            <div class="stat-label">Ошибки</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="statPercent">0%</div>
+            <div class="stat-label">Точность</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="restartBtn">Попробовать снова</button>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
